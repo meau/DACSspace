@@ -14,13 +14,13 @@ Add software operating systems, programming languages or libraries which are req
 
 ## Installation
 
-run `setup.py` to create a configuration file which will allow you to connect to your ArchivesSpace instance.
+Install requirements, then run `setup.py` to create a configuration file which will allow you to connect to your ArchivesSpace instance.
 
 ## Usage
 
 ### Single-level DACS compliance
 
-Run `.single-level.py`
+Run `single-level.py`
 
 ## Contributing
 
