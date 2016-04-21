@@ -45,16 +45,31 @@ def get_language(resource):
 	else:
 		return "false"
 
-
+def get_creator(resource):
+	creator_type = []
+	for creator in resource["linked_agents"]:
+		if creator["role"] == ("creator"):
+			creator_type.append("true")
+		else:
+			creator_type.append("false")
+	return creator_type
+	
 def makeRow(resource):
 	global row
 	row = []
 	language_list = get_language(resource)
 	extent_list = get_extent_number(resource)
+	creator_list = get_creator(resource)
 	notes_list = get_note_types(resource)
 	row.append(resource["title"].encode("utf-8"))
 	row.append(resource["id_0"])
 	row.append(resource["publish"])
+			
+	if "true" in creator_list:
+		row.append("true")
+	else:
+		row.append("false")
+	
 	if "true" in language_list:
 		row.append("true")
 	else:
@@ -79,7 +94,7 @@ def makeRow(resource):
 def main():
 	print "Creating a csv"
 	writer = csv.writer(open(spreadsheet, "w"))
-	column_headings = ["title","resource", "publish", "language", "extent"] + required_notes
+	column_headings = ["title","resource", "publish", "creator", "language", "extent"] + required_notes
 	writer.writerow(column_headings)
 
 	print "Getting a list of resources"
