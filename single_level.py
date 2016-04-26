@@ -113,7 +113,7 @@ def makeRow(resource):
 			# row.append("false")
 	
 	
-	# if 'language' in get_language(resource):
+	## if 'language' in get_language(resource):
 		# row.append(resource.get("language"))
 	# else:
 		# row.append("false")
