@@ -19,6 +19,7 @@ spreadsheet = os.path.join(config.get("Destinations", "directory"), config.get("
 #DACS Required Notes to check for
 required_notes = ["scopecontent", "accessrestrict"]
 
+
 def get_note_types(resource):
 	note_types = []
 	for note in resource["notes"]:
@@ -47,17 +48,17 @@ def get_single_value(resource, key):
 def makeRow(resource):
 	global row
 	row = []
+	publish = get_single_value(resource, "publish")
 	extent = get_values(resource, "extents", "number")
 	date = get_values(resource, "dates", "date_type")
 	agent = get_values(resource, "linked_agents", "role")
 	language = get_single_value(resource, "language")
 	repository = get_single_value(resource, "repository")
-	required_values = extent, date, language, repository
+	required_values = publish, extent, date, language, repository
 	notes_list = get_note_types(resource)
 	row.append(resource["title"].encode("utf-8"))
 	row.append(resource["id_0"])
-	row.append(resource["publish"])
-
+	
 	for item in required_values:
 		if item != "false":
 			row.append("true")
