@@ -56,14 +56,22 @@ def makeRow(resource):
 	agent = get_values(resource, "linked_agents", "role")
 	language = get_single_value(resource, "language")
 	repository = get_single_value(resource, "repository")
-	required_values = title, resourceId, extent, date, language, repository
+	required_values = title, resourceId, extent, date, language
 	notes_list = get_note_types(resource)
+	
 	
 	for item in required_values:
 		if item != "false": 
 			row.append(item)
 		else:
-			row.append("false")				
+			row.append("false")	
+
+	if repository:
+		response = requests.get('http://192.168.50.36:8089/repositories/2')
+		r = response.json()
+		row.append(r["name"])
+	else:
+		row.append("false")			
 
 	if "creator" in agent:
 		row.append(agent)
@@ -79,12 +87,11 @@ def makeRow(resource):
 		else:
 			row.append("false")
 	print row
-	return row
 
 
 def main():
 	print "Creating a csv"
-	writer = csv.writer(open(spreadsheet, "w"))
+	writer = csv.writer(open(spreadsheet, "wb"))
 	column_headings = ["title", "resource", "extent", "date", "language", "repository", "creator"] + required_notes
 	writer.writerow(column_headings)
 
