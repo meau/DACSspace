@@ -61,7 +61,7 @@ def makeRow(resource):
 	
 	for item in required_values:
 		if item != "false": 
-			row.append(item)
+			row.append(item.encode('utf-8'))
 		else:
 			row.append("false")	
 
