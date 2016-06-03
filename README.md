@@ -1,12 +1,8 @@
 # DACSspace
 
-A simple Python script to evaluate your ArchivesSpace instance for DACS compliance.
-
-This repository is currently under development!
+A simple Python script to evaluate your ArchivesSpace instance for DACS [single-level minimum](http://www2.archivists.org/standards/DACS/part_I/chapter_1) required elements. 
 
 ## Requirements
-
-Add software operating systems, programming languages or libraries which are required by this project as an unordered list like this:
 
 *   Python (written for and tested on 2.7).
 *   ConfigParser
@@ -14,13 +10,19 @@ Add software operating systems, programming languages or libraries which are req
 
 ## Installation
 
-Install requirements, then run `setup.py` to create a configuration file which will allow you to connect to your ArchivesSpace instance.
+Download [Python](https://www.python.org/downloads/)
+
+Add Python to your [PATH variable](https://docs.python.org/2/using/windows.html)
+
+Install requirements (instructions on installing the Requests module can be found [here](http://docs.python-requests.org/en/master/user/install/))
 
 ## Usage
 
-### Single-level DACS compliance
+Run `setup.py` to create a configuration file named `local_settings.cfg` which will allow you to connect to your ArchivesSpace instance.
 
-Run `single-level.py`
+Using the command line navigate to the directory containing the DACSspace repository and run `single-level.py` to execute the script.
+
+
 
 ## Contributing
 
@@ -28,7 +30,7 @@ Pull requests accepted!
 
 ## Authors
 
-Hillel Arnold
+Hillel Arnold and Amy Berish
 
 ## License
 
