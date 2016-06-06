@@ -40,7 +40,7 @@ filename: dacs_singlelevel_report.csv
 
 Using the command line navigate to the directory containing the DACSspace repository and run `single-level.py` to execute the script.
 
-The script will create a list of evaluated resources in a csv file (default is `dacsreport.csv`).
+The script will create a list of evaluated resources in a csv file (default is `dacs_singlelevel_report.csv`).
 
 A sample csv file will look like this:
 
@@ -48,11 +48,6 @@ A sample csv file will look like this:
 | ---|---| ---|----| ---| --- | --- | ---- |
 | #resource title     | #resourceId | #inclusive| #eng | #NameofRepository | #FALSE | #scopecontent| #accessrestrict
 | #resource title     | #resourceId | #single | #FALSE | #NameofRepository | #creator | #FALSE| #FALSE
-
-**This script is designed to check for the _existence_ of DACS fields - it will not:**
-* produce the extent number
-* generate creator's name
-* provide the content of scope note or access restrictions note
 
 If you are using Microsoft Excel to view the csv file consult the following links to avoid encoding issues: [Excel 2007](https://www.itg.ias.edu/content/how-import-csv-file-uses-utf-8-character-encoding-0), [Excel 2013](https://www.itg.ias.edu/node/985).
 
