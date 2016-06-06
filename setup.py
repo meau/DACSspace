@@ -50,7 +50,7 @@ def main():
     directory = raw_input("Enter the directory in which you want to save the spreadsheet (default is the current directory): ")
     write_value("directory", "", directory)
     filename = raw_input("Now tell me the filename of the CSV spreadsheet you want to create (default is 'dacs-report.csv'): ")
-    write_value("filename", "dacs-report.csv", filename)
+    write_value("filename", "dacs_singlelevel_report.csv", filename)
 
     cfg_file.close()
 
