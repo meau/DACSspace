@@ -59,15 +59,14 @@ def makeRow(resource):
 	required_values = title, resourceId, extent, date, language
 	notes_list = get_note_types(resource)
 	
-	
 	for item in required_values:
 		if item != "false": 
-			row.append(item)
+			row.append(item.encode('utf-8'))
 		else:
 			row.append("false")	
 
 	if repository:
-		response = requests.get('http://192.168.50.36:8089/repositories/2')
+		response = requests.get(repositoryBaseURL, headers=headers)
 		r = response.json()
 		row.append(r["name"])
 	else:
