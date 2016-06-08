@@ -16,10 +16,12 @@ headers = {"X-ArchivesSpace-Session":auth["session"]}
 
 spreadsheet = os.path.join(config.get("Destinations", "directory"), config.get("Destinations", "filename"))
 
+def get_note_contents(resource, array, note_type):
 	notes = resource["notes"]
 	content_list = []
 	for note in notes:
 		try:
+			if note["type"] == note_type:
 				if note["jsonmodel_type"] == "note_singlepart":
 					content_list.append(note["content"].encode('utf-8'))
 				else:
@@ -56,6 +58,8 @@ def makeRow(resource):
 	language = get_single_value(resource, "language")
 	repository = get_single_value(resource, "repository")
 	required_values = title, resourceId, extent, date, language
+	scope = get_note_contents(resource, "notes", "scopecontent")
+	access = get_note_contents(resource, "notes", "accessrestrict")
 	required_notes = scope, access
 
 	for item in required_values:
