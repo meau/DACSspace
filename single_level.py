@@ -16,19 +16,18 @@ headers = {"X-ArchivesSpace-Session":auth["session"]}
 
 spreadsheet = os.path.join(config.get("Destinations", "directory"), config.get("Destinations", "filename"))
 
-#DACS Required Notes to check for
-required_notes = ["scopecontent", "accessrestrict"]
+	notes = resource["notes"]
+	content_list = []
+	for note in notes:
+		try:
+				if note["jsonmodel_type"] == "note_singlepart":
+					content_list.append(note["content"].encode('utf-8'))
+				else:
+					content_list.append(note["subnotes"][0]["content"].encode('utf-8'))
+		except:
+			pass
+	return ", ".join(content_list)
 
-
-def get_note_types(resource):
-	note_types = []
-	for note in resource["notes"]:
-		if note["jsonmodel_type"] == ("note_multipart" or "note_singlepart"):
-			note_types.append(note["type"])
-		else:
-			note_types.append(note["jsonmodel_type"])
-	return note_types
-	
 def get_values(resource, array, value):
 	value_types = []
 	for item in resource[array]:
@@ -36,15 +35,15 @@ def get_values(resource, array, value):
 			value_types.append(item[value])
 		else:
 			value_types.append("false")
-	return " , ".join(value_types)
-	
+	return ", ".join(value_types)
+
 def get_single_value(resource, key):
 	d = resource
 	if key in d:
 		return d.get(key)
 	else:
 		return "false"
-	
+
 def makeRow(resource):
 	global row
 	row = []
@@ -57,8 +56,8 @@ def makeRow(resource):
 	language = get_single_value(resource, "language")
 	repository = get_single_value(resource, "repository")
 	required_values = title, resourceId, extent, date, language
-	notes_list = get_note_types(resource)
-	
+	required_notes = scope, access
+
 	for item in required_values:
 		if item != "false": 
 			row.append(item.encode('utf-8'))
@@ -66,32 +65,33 @@ def makeRow(resource):
 			row.append("false")	
 
 	if repository:
-		response = requests.get(repositoryBaseURL, headers=headers)
-		r = response.json()
-		row.append(r["name"])
+		response = requests.get(repositoryBaseURL, headers=headers).json()
+		row.append(response["name"])
 	else:
 		row.append("false")			
 
 	if "creator" in agent:
-		row.append(agent)
+		creator_list = []
+		for item in resource["linked_agents"]:
+			response = requests.get(resourceURL + item["ref"], headers=headers).json()
+			for item in response["names"]:
+				creator_list.append(item["sort_name"])
+		row.append(", ".join(creator_list).encode('utf-8'))
 	else:
-		row.append("false")	
+		row.append("false")
 							
-	for note in required_notes:
-		if notes_list:
-			if note in notes_list:
-				row.append(note)
-			else:
-				row.append("false")
+	for item in required_notes:
+		if item:
+			row.append(item)
 		else:
 			row.append("false")
+	
 	print row
-
 
 def main():
 	print "Creating a csv"
 	writer = csv.writer(open(spreadsheet, "wb"))
-	column_headings = ["title", "resource", "extent", "date", "language", "repository", "creator"] + required_notes
+	column_headings = ["title", "resource", "extent", "date", "language", "repository", "creator", "scope", "restrictions"]
 	writer.writerow(column_headings)
 
 	print "Getting a list of resources"
