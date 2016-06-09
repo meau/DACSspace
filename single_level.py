@@ -28,7 +28,7 @@ def get_note_contents(resource, array, note_type):
 					content_list.append(note["subnotes"][0]["content"].encode('utf-8'))
 		except:
 			pass
-	return ", ".join(content_list)
+	return " | ".join(content_list)
 
 def get_values(resource, array, value):
 	value_types = []
@@ -37,7 +37,7 @@ def get_values(resource, array, value):
 			value_types.append(item[value])
 		else:
 			value_types.append("false")
-	return ", ".join(value_types)
+	return " | ".join(value_types)
 
 def get_single_value(resource, key):
 	d = resource
