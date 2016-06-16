@@ -15,7 +15,7 @@ auth = requests.post("{baseURL}/users/{user}/login?password={password}&expiring=
 headers = {"X-ArchivesSpace-Session":auth["session"]}
 
 spreadsheet = os.path.join(config.get("Destinations", "directory"), config.get("Destinations", "filename"))
-
+	
 def get_note_contents(resource, array, note_type):
 	notes = resource["notes"]
 	content_list = []
@@ -50,21 +50,21 @@ def makeRow(resource):
 	global row
 	row = []
 	publish = get_single_value(resource, "publish")
-	title = get_single_value(resource, "title")
-	resourceId = get_single_value(resource, "id_0")
+	title = get_single_value(resource, "title").encode('utf-8')
+	resource_ids = get_single_value(resource, "id_0")
 	extent = get_values(resource, "extents", "number")
 	date = get_values(resource, "dates", "date_type")
 	agent = get_values(resource, "linked_agents", "role")
 	language = get_single_value(resource, "language")
 	repository = get_single_value(resource, "repository")
-	required_values = title, resourceId, extent, date, language
+	required_values = title, publish, resource_ids, extent, date, language
 	scope = get_note_contents(resource, "notes", "scopecontent")
 	access = get_note_contents(resource, "notes", "accessrestrict")
 	required_notes = scope, access
 
 	for item in required_values:
 		if item != "false": 
-			row.append(item.encode('utf-8'))
+			row.append(item)
 		else:
 			row.append("false")	
 
@@ -90,22 +90,64 @@ def makeRow(resource):
 		else:
 			row.append("false")
 	
-	print row
+	print row	
 
 def main():
-	print "Creating a csv"
-	writer = csv.writer(open(spreadsheet, "wb"))
-	column_headings = ["title", "resource", "extent", "date", "language", "repository", "creator", "scope", "restrictions"]
-	writer.writerow(column_headings)
-
-	print "Getting a list of resources"
+	#Get list of resources
 	resourceIds = requests.get(repositoryBaseURL + "/resources?all_ids=true", headers=headers)
-	print "Writing rows"
-	for resourceId in resourceIds.json():
-			resource = (requests.get(repositoryBaseURL + "/resources/" + str(resourceId), headers=headers)).json()
-			if resource["publish"]:
+	
+	#Creating csv
+	writer = csv.writer(open(spreadsheet, "wb"))
+	column_headings = ["title", "publish", "resource", "extent", "date", "language", "repository", "creator", "scope", "restrictions"]
+	writer.writerow(column_headings)
+	
+	#User input to refine functionality of script 
+	print "Welcome to DACSspace!"
+	response_1 = raw_input("Do you want DACSspace to include only published resources? (y/n): ")
+	response_2 = raw_input("Do you want to further limit the script by specific resource ids? (y/n): ")
+	
+	if response_1 == "y":
+		if response_2 == "y":
+			print "Enter the part of the resource ID you wish to include in the script"
+			unique_id = raw_input("Enter value: ")
+			print "Evaluating only published resources containing", unique_id,"in thier resource ID"
+			for resourceId in resourceIds.json():
+				resource = (requests.get(repositoryBaseURL + "/resources/" + str(resourceId), headers=headers)).json()	
+				if resource["publish"] and unique_id in resource["id_0"]:
+					makeRow(resource)
+					writer.writerow(row)
+				else:
+					pass
+		else:
+			print "Evaluating published resources"
+			for resourceId in resourceIds.json():
+				resource = (requests.get(repositoryBaseURL + "/resources/" + str(resourceId), headers=headers)).json()	
+				if resource["publish"]:
+					makeRow(resource)
+					writer.writerow(row)
+				else:
+					pass
+	elif response_1 == "n":
+		if response_2 == "y":
+			print "Enter the beginning of the resource ID you wish to include in the script"
+			unique_id = raw_input("Enter value: ")
+			print "Evaluating all resources containing", unique_id,"in thier resource ID"
+			for resourceId in resourceIds.json():
+				resource = (requests.get(repositoryBaseURL + "/resources/" + str(resourceId), headers=headers)).json()	
+				if unique_id in resource["id_0"]:
+					makeRow(resource)
+					writer.writerow(row)
+				else:
+					pass
+		else:
+			print "Evaluating all resources"
+			for resourceId in resourceIds.json():
+				resource = (requests.get(repositoryBaseURL + "/resources/" + str(resourceId), headers=headers)).json()	
 				makeRow(resource)
 				writer.writerow(row)
+	else:
+		print "Invalid response, please try again" 			
+	
 	spreadsheet.close()
 
 main()
