@@ -51,13 +51,13 @@ def makeRow(resource):
 	row = []
 	publish = get_single_value(resource, "publish")
 	title = get_single_value(resource, "title").encode('utf-8')
-	resource_ids = get_single_value(resource, "id_0")
+	resource_id = get_single_value(resource, "id_0")
 	extent = get_values(resource, "extents", "number")
 	date = get_values(resource, "dates", "date_type")
 	agent = get_values(resource, "linked_agents", "role")
 	language = get_single_value(resource, "language")
 	repository = get_single_value(resource, "repository")
-	required_values = title, publish, resource_ids, extent, date, language
+	required_values = title, publish, resource_id, extent, date, language
 	scope = get_note_contents(resource, "notes", "scopecontent")
 	access = get_note_contents(resource, "notes", "accessrestrict")
 	required_notes = scope, access
@@ -93,24 +93,47 @@ def makeRow(resource):
 	print row	
 
 def main():
-	#Get list of resources
+	#User input to refine functionality of script 
+	print "Welcome to DACSspace!"
+	print ""
+	print "I'll ask you a series of questions to refine how the script works."
+	print "If you want to use the default value for a question press the ENTER key."
+	print ""
+	unpublished_response = raw_input("Do you want DACSspace to include unpublished resources? (default is no): ")
+	uniqueid_response = raw_input("Do you want to further limit the script by a specific resource id? (default is no): ")
+	
+	#Getting list of resources
 	resourceIds = requests.get(repositoryBaseURL + "/resources?all_ids=true", headers=headers)
 	
 	#Creating csv
 	writer = csv.writer(open(spreadsheet, "wb"))
 	column_headings = ["title", "publish", "resource", "extent", "date", "language", "repository", "creator", "scope", "restrictions"]
 	writer.writerow(column_headings)
-	
-	#User input to refine functionality of script 
-	print "Welcome to DACSspace!"
-	response_1 = raw_input("Do you want DACSspace to include only published resources? (y/n): ")
-	response_2 = raw_input("Do you want to further limit the script by specific resource ids? (y/n): ")
-	
-	if response_1 == "y":
-		if response_2 == "y":
-			print "Enter the part of the resource ID you wish to include in the script"
-			unique_id = raw_input("Enter value: ")
-			print "Evaluating only published resources containing", unique_id,"in thier resource ID"
+
+	#Checking ALL resources
+	if unpublished_response:
+		if uniqueid_response:
+			unique_id = raw_input("Enter the beginning of the resource ID you wish to include in the script: ")
+			print "Evaluating all resources containing", unique_id,"in their resource ID"
+			for resourceId in resourceIds.json():
+				resource = (requests.get(repositoryBaseURL + "/resources/" + str(resourceId), headers=headers)).json()	
+				if unique_id in resource["id_0"]:
+					makeRow(resource)
+					writer.writerow(row)
+				else:
+					pass
+		else:
+			print "Evaluating all resources"
+			for resourceId in resourceIds.json():
+				resource = (requests.get(repositoryBaseURL + "/resources/" + str(resourceId), headers=headers)).json()	
+				makeRow(resource)
+				writer.writerow(row)
+				
+	#Checking ONLY published resources
+	else:
+		if uniqueid_response:
+			unique_id = raw_input("Enter the beginning of the resource ID you wish to include in the script: ")
+			print "Evaluating only published resources containing", unique_id,"in their resource ID"
 			for resourceId in resourceIds.json():
 				resource = (requests.get(repositoryBaseURL + "/resources/" + str(resourceId), headers=headers)).json()	
 				if resource["publish"] and unique_id in resource["id_0"]:
@@ -127,27 +150,7 @@ def main():
 					writer.writerow(row)
 				else:
 					pass
-	elif response_1 == "n":
-		if response_2 == "y":
-			print "Enter the beginning of the resource ID you wish to include in the script"
-			unique_id = raw_input("Enter value: ")
-			print "Evaluating all resources containing", unique_id,"in thier resource ID"
-			for resourceId in resourceIds.json():
-				resource = (requests.get(repositoryBaseURL + "/resources/" + str(resourceId), headers=headers)).json()	
-				if unique_id in resource["id_0"]:
-					makeRow(resource)
-					writer.writerow(row)
-				else:
-					pass
-		else:
-			print "Evaluating all resources"
-			for resourceId in resourceIds.json():
-				resource = (requests.get(repositoryBaseURL + "/resources/" + str(resourceId), headers=headers)).json()	
-				makeRow(resource)
-				writer.writerow(row)
-	else:
-		print "Invalid response, please try again" 			
-	
+
 	spreadsheet.close()
 
 main()
