@@ -101,8 +101,8 @@ def main():
 	print ""
 	print "If you want to use the default value for a question press the ENTER key."
 	print ""
-	unpublished_response = raw_input("Do you want DACSspace to include unpublished resources? y/n (default is no): ")
-	uniqueid_response = raw_input("Do you want to further limit the script by a specific resource id? y/n (default is no): ")
+	unpublished_response = raw_input("Do you want DACSspace to include unpublished resources? y/n (default is n): ")
+	uniqueid_response = raw_input("Do you want to further limit the script by a specific resource id? If so, enter a string that must be present in the resource id (enter to skip): ")
 	
 	#Getting list of resources
 	resourceIds = requests.get(repositoryBaseURL + "/resources?all_ids=true", headers=headers)
@@ -113,13 +113,12 @@ def main():
 	writer.writerow(column_headings)
 
 	#Checking ALL resources
-	if unpublished_response == ("y" or "yes"):
+	if unpublished_response == ("y"):
 		if uniqueid_response:
-			unique_id = raw_input("Enter the beginning of the resource ID you wish to include in the script: ")
-			print "Evaluating all resources containing", unique_id,"in their resource ID"
+			print "Evaluating all resources containing", uniqueid_response,"in their resource ID"
 			for resourceId in resourceIds.json():
 				resource = (requests.get(repositoryBaseURL + "/resources/" + str(resourceId), headers=headers)).json()	
-				if unique_id in resource["id_0"]:
+				if uniqueid_response in resource["id_0"]:
 					makeRow(resource)
 					writer.writerow(row)
 				else:
@@ -132,13 +131,12 @@ def main():
 				writer.writerow(row)
 				
 	#Checking ONLY published resources
-	elif not unpublished_response or unpublished_response == ("n" or "no"):
+	elif not unpublished_response or unpublished_response == ("n"):
 		if uniqueid_response:
-			unique_id = raw_input("Enter the beginning of the resource ID you wish to include in the script (Press ENTER to skip): ")
-			print "Evaluating only published resources containing", unique_id,"in their resource ID"
+			print "Evaluating only published resources containing", uniqueid_response,"in their resource ID"
 			for resourceId in resourceIds.json():
 				resource = (requests.get(repositoryBaseURL + "/resources/" + str(resourceId), headers=headers)).json()	
-				if resource["publish"] and unique_id in resource["id_0"]:
+				if resource["publish"] and uniqueid_response in resource["id_0"]:
 					makeRow(resource)
 					writer.writerow(row)
 				else:
