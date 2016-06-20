@@ -94,13 +94,15 @@ def makeRow(resource):
 
 def main():
 	#User input to refine functionality of script 
+	print ""
 	print "Welcome to DACSspace!"
 	print ""
 	print "I'll ask you a series of questions to refine how the script works."
+	print ""
 	print "If you want to use the default value for a question press the ENTER key."
 	print ""
-	unpublished_response = raw_input("Do you want DACSspace to include unpublished resources? (default is no): ")
-	uniqueid_response = raw_input("Do you want to further limit the script by a specific resource id? (default is no): ")
+	unpublished_response = raw_input("Do you want DACSspace to include unpublished resources? y/n (default is no): ")
+	uniqueid_response = raw_input("Do you want to further limit the script by a specific resource id? y/n (default is no): ")
 	
 	#Getting list of resources
 	resourceIds = requests.get(repositoryBaseURL + "/resources?all_ids=true", headers=headers)
@@ -111,7 +113,7 @@ def main():
 	writer.writerow(column_headings)
 
 	#Checking ALL resources
-	if unpublished_response:
+	if unpublished_response == ("y" or "yes"):
 		if uniqueid_response:
 			unique_id = raw_input("Enter the beginning of the resource ID you wish to include in the script: ")
 			print "Evaluating all resources containing", unique_id,"in their resource ID"
@@ -130,9 +132,9 @@ def main():
 				writer.writerow(row)
 				
 	#Checking ONLY published resources
-	else:
+	elif not unpublished_response or unpublished_response == ("n" or "no"):
 		if uniqueid_response:
-			unique_id = raw_input("Enter the beginning of the resource ID you wish to include in the script: ")
+			unique_id = raw_input("Enter the beginning of the resource ID you wish to include in the script (Press ENTER to skip): ")
 			print "Evaluating only published resources containing", unique_id,"in their resource ID"
 			for resourceId in resourceIds.json():
 				resource = (requests.get(repositoryBaseURL + "/resources/" + str(resourceId), headers=headers)).json()	
@@ -150,6 +152,8 @@ def main():
 					writer.writerow(row)
 				else:
 					pass
+	else:
+		print "Invalid response, please try again"
 
 	spreadsheet.close()
 
