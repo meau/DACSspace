@@ -95,12 +95,9 @@ def makeRow(resource):
 def main():
 	#User input to refine functionality of script 
 	print ""
-	print "Welcome to DACSspace!"
-	print ""
-	print "I'll ask you a series of questions to refine how the script works."
-	print ""
-	print "If you want to use the default value for a question press the ENTER key."
-	print ""
+	print "Welcome to DACSspace!\n"
+	print "I'll ask you a series of questions to refine how the script works.\n"
+	print "If you want to use the default value for a question press the ENTER key.\n"
 	unpublished_response = raw_input("Do you want DACSspace to include unpublished resources? y/n (default is n): ")
 	uniqueid_response = raw_input("Do you want to further limit the script by a specific resource id? If so, enter a string that must be present in the resource id (enter to skip): ")
 	
