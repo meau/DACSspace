@@ -150,6 +150,4 @@ def main():
 	else:
 		print "Invalid response, please try again"
 
-	spreadsheet.close()
-
 main()
